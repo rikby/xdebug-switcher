@@ -1,0 +1,227 @@
+#!/usr/bin/env bash
+# Download this gist into file "~/.xd_swi"
+#    curl -Ls https://goo.gl/IxjlaC | bash
+#    or
+#    curl -Ls https://gist.github.com/andkirby/8db337ea6495951e6f952005ce7c170b/raw/.xd_swi | bash
+# And run:
+#    xd_swi
+#      - switch status
+#    xd_swi 0|off
+#      - disable xdebug
+#    xd_swi 1|on
+#      - enable xdebug
+#    xd_swi status
+#      - show status
+#    xd_swi stat
+#      - show status as integer
+#    xd_swi test
+#      - test all commands
+#    xd_swi -h
+#      - show help
+#
+# Appreciates to owner/s for advices in http://bash3boilerplate.sh
+# http://kvz.io/blog/2013/11/21/bash-best-practices/
+#
+# 2016-11-24
+
+set -o errexit
+set -o pipefail
+set -o nounset
+#set -o xtrace
+
+# Set magic variables for current file & dir
+__dir="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+__file="${__dir}/$(basename "${BASH_SOURCE[0]}")"
+__version='v0.1.0 (2016-11-24)'
+readonly __dir __file __version
+
+show_help () {
+  cat << EOF
+PHP XDebug extension switcher.
+Commands:
+  Toggle status
+    $ xd_swi
+    XDebug is enabled
+
+  Show this help
+    $ xd_swi -h
+
+  Push to ON
+    $ xd_swi 1|on
+    XDebug is enabled
+
+  Push to OFF
+    $ xd_swi 0|off
+    XDebug is disabled
+
+  Show status as integer 1 or 0
+    $ xd_swi stat
+    1
+
+  Show status as a message
+    $ xd_swi status
+    XDebug enabled
+
+  Run version/date
+    $ xd_swi -v
+
+  Run self update
+    $ xd_swi self-update
+EOF
+}
+
+check_php () {
+  # Check PHP
+  php --version > /dev/null 2>&1
+  if [  0 != $? ]; then
+      echo -e '\033[0;31m''PHP not found.''\e[0m'
+      exit 1
+  fi
+}
+
+find_ini_file () {
+  local file_ini
+  # Find Xdebug INI file
+  file_ini=$(php -i | grep -Eo '(([A-Z]\:|/)[^ ]+)xdebug.ini')
+  if [ -z ${file_ini} ]; then
+    file_ini=$(php -i | grep -Eo '(([A-Z]\:|/)[^ ]+)php.ini')
+  fi
+  if [ -z ${file_ini} ]; then
+    echo 'There is no PHP ini file to edit.'
+    exit 1
+  fi
+  if [ ! -f ${file_ini} ]; then
+    echo "There is no ini file '${file_ini}' to edit."
+    exit 1
+  fi
+  echo ${file_ini}
+}
+
+xdebug_on? () {
+  php -i | grep 'xdebug support => enabled' > /dev/null 2>&1 && echo 1 || echo 0
+}
+
+show_status () {
+  # Show status
+  [ '1' == "$(xdebug_on?)" ] \
+      && echo -e 'XDebug is ''\033[0;32m''enabled''\e[0m' \
+      || echo -e 'XDebug is ''\033[0;31m''disabled''\e[0m'
+}
+
+switch_status () {
+  local file_ini target_status match_string find replace sud
+  target_status="${1:-}"
+  [ "$(xdebug_on?)" == "${target_status}" ] && return
+
+  file_ini=$(find_ini_file)
+
+  # Check Xdebug configuration declaration.
+  match_string=$(cat ${file_ini} | grep -Eo ';*zend_extension\s*=.*xdebug')
+  if [ -z "${match_string}" ]; then
+    echo "There is no declaration about xdebug PHP extension."
+    exit 1
+  fi
+
+  if [ '0' == "$(xdebug_on?)" ] ; then
+    find="${match_string}"
+    replace=$( echo ${match_string} | tr -d ';' )
+  else
+    find=$( echo ${match_string} | tr -d ';' )
+    replace=";${match_string}"
+  fi
+  sud=''
+  if [[ "$(uname -a)" =~ 'Msys' ]] || [[ "${EUID}" == '0' ]]; then
+    sud=''
+  elif sudo -v > /dev/null 2>&1; then
+    sud='sudo'
+  fi
+  ${sud} sed -i.bak -r "s|${find}|${replace}|g" ${file_ini}
+}
+
+self_update () {
+  if [ -e ${__file} ] && [ ! -w ${__file} ]; then
+      echo 'error: No permissions to make update.'
+      exit 1
+  fi
+
+  if ! curl -Ls https://gist.github.com/andkirby/8db337ea6495951e6f952005ce7c170b/raw/.xd_swi -o ${__file}.tmp; then
+    echo 'error: Cannot complete update.'
+    exit 1
+  fi
+
+  mv ${__file}.tmp ${__file}
+}
+
+xd_test () {
+  local old result
+  result=1
+  old=$(xd_swi 'stat')
+  [[ "$(xd_swi 1)" =~ 'enabled' ]] && \
+  [[ "$(xd_swi 0)" =~ 'disabled' ]] && \
+  [[ "$(xd_swi)" =~ 'enabled' ]] && \
+  [[ "$(xd_swi 'status')" =~ 'enabled' ]] && \
+  [ "$(xd_swi 'stat')" == '1' ] && \
+  echo 'OK' || result=0
+
+  xd_swi ${old} > /dev/null 2>&1
+
+  [ "${result}" == '0' ] && echo 'FAILED' && exit 5
+}
+
+xd_swi () {
+  action="${1:-}"
+  check_php
+
+  if [ '-h' == "${action}" ]; then
+    show_help
+    exit 0
+  fi
+  if [ '-v' == "${action}" ]; then
+    echo ${__version}
+    exit 0
+  fi
+  if [ 'test' == "${action}" ]; then
+    xd_test
+    exit 0
+  fi
+
+  if [ 'status' == "${action}" ]; then
+    show_status
+    exit 0
+  fi
+  if [ 'stat' == "${action}" ]; then
+    xdebug_on?
+    exit 0
+  fi
+  if [[ "${action}" =~ self-?update ]]; then
+    self_update
+    exit 0
+  fi
+  if [ 'on' == "${action}" ]; then
+    action=1
+  elif [ 'off' == "${action}" ]; then
+    action=0
+  fi
+
+  switch_status ${action}
+  show_status
+}
+
+# Script running with pipeline
+if [ -z "${BASH_SOURCE[0]:-}" ]; then
+  __dir=/usr/local/bin
+  if [ ! -d ${__dir} ]; then
+    __dir=/usr/bin
+  fi
+  curl -Ls https://gist.github.com/andkirby/8db337ea6495951e6f952005ce7c170b/raw/.xd_swi -o ${__dir}/xd_swi
+  chmod +x ${__dir}/xd_swi
+  echo 'XDebug switcher: '${__dir}/xd_swi
+  exit 0
+fi
+
+if [ "${BASH_SOURCE[0]}" != "${0}" ]; then
+  export -f xd_swi
+else
+  xd_swi "${@}"
+  exit $?
+fi
