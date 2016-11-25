@@ -37,8 +37,11 @@ Commands:
     $ xd_swi status
     XDebug enabled
 
-  Run version/date
+  Get version/date
     $ xd_swi -v
+
+  Get path to xdebug configuration INI file
+    $ xd_swi file
 
   Run self update
     $ xd_swi self-update
