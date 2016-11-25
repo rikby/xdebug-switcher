@@ -215,7 +215,7 @@ if [ -z "${BASH_SOURCE[0]:-}" ]; then
   exit 0
 fi
 
-if [ "${BASH_SOURCE[0]}" != "${0}" ]; then
+if [ "${BASH_SOURCE[0]:-}" != "${0}" ]; then
   export -f xd_swi
 else
   xd_swi "${@}"
