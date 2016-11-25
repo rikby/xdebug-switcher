@@ -5,6 +5,10 @@ Status switcher for extension PHP Xdebug.
 ```shell
 $ curl -Ls https://raw.github.com/rikby/xdebug-switcher/master/download | bash
 ```
+Or get help
+```
+$ curl -Ls https://raw.github.com/rikby/xdebug-switcher/master/download | bash -s -- --help
+```
 
 ## Help output
 ```
