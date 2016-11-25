@@ -143,12 +143,10 @@ self_update () {
       exit 1
   fi
 
-  if ! curl -Ls ${download_url} | bash -s -- --file /tmp/xd_swi.tmp > /dev/null 2>&1; then
+  if ! curl -Ls ${download_url} | bash -s -- --file ${__file} > /dev/null 2>&1; then
     echo 'error: Cannot complete update.'
     exit 1
   fi
-
-  mv /tmp/xd_swi.tmp ${__file}
   
   echo 'Update completed.'
 }
