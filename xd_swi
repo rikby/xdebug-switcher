@@ -1,8 +1,8 @@
 #!/usr/bin/env bash
-# Download this gist into file "~/.xd_swi"
-#    curl -Ls https://goo.gl/IxjlaC | bash
-#    or
-#    curl -Ls https://gist.github.com/andkirby/8db337ea6495951e6f952005ce7c170b/raw/.xd_swi | bash
+# Download this file
+#    curl -Ls https://raw.github.com/rikby/xdebug-switcher/master/download | bash
+# Show help
+#    curl -Ls https://raw.github.com/rikby/xdebug-switcher/master/download | bash -s -- --help
 # And run:
 #    xd_swi
 #      - switch status
@@ -34,6 +34,8 @@ __dir="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 __file="${__dir}/$(basename "${BASH_SOURCE[0]}")"
 __version='v0.1.0 (2016-11-24)'
 readonly __dir __file __version
+
+download_url='https://raw.github.com/rikby/xdebug-switcher/master/download'
 
 show_help () {
   cat << EOF
@@ -144,12 +146,12 @@ self_update () {
       exit 1
   fi
 
-  if ! curl -Ls https://gist.github.com/andkirby/8db337ea6495951e6f952005ce7c170b/raw/.xd_swi -o ${__file}.tmp; then
+  if ! curl -Ls ${download_url} | bash -s -- --file /tmp/xd_swi.tmp; then
     echo 'error: Cannot complete update.'
     exit 1
   fi
 
-  mv ${__file}.tmp ${__file}
+  mv /tmp/xd_swi.tmp ${__file}
 }
 
 xd_test () {
@@ -209,13 +211,7 @@ xd_swi () {
 
 # Script running with pipeline
 if [ -z "${BASH_SOURCE[0]:-}" ]; then
-  __dir=/usr/local/bin
-  if [ ! -d ${__dir} ]; then
-    __dir=/usr/bin
-  fi
-  curl -Ls https://gist.github.com/andkirby/8db337ea6495951e6f952005ce7c170b/raw/.xd_swi -o ${__dir}/xd_swi
-  chmod +x ${__dir}/xd_swi
-  echo 'XDebug switcher: '${__dir}/xd_swi
+  curl -Ls ${download_url} | bash -s -- "${@}"
   exit 0
 fi
 
