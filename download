@@ -1,0 +1,19 @@
+#!/usr/bin/env bash
+# Download
+#    $ curl -Ls https://raw.github.com/rikby/xdebug-switcher/master/download | bash
+# Download particular version
+#    $ curl -Ls https://raw.github.com/rikby/xdebug-switcher/master/download | bash -s -- --version 0.1.0
+# Download and set custom path to binary file
+#    $ curl -Ls https://raw.github.com/rikby/xdebug-switcher/master/download | bash -s -- --file /usr/bin/semversort
+# Show available versions
+#    $ curl -Ls https://raw.github.com/rikby/xdebug-switcher/master/download | bash -s -- --versions
+# See help:
+#    $ curl -Ls https://raw.github.com/rikby/xdebug-switcher/master/download | bash -s -- --help
+#
+# Source in master branch:
+#    https://raw.github.com/rikby/xdebug-switcher/master/xd_swi
+
+# Download last version
+curl -Ls https://raw.github.com/rikby/bin-downloader/master/download | bash -s -- \
+    rikby/xdebug-switcher \
+    xd_swi -- $@
