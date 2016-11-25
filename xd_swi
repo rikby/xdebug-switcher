@@ -27,7 +27,7 @@ set -o pipefail
 set -o nounset
 #set -o xtrace
 
-__version='v0.2.1'
+__version='v0.2.3'
 download_url='https://raw.github.com/rikby/xdebug-switcher/master/download'
 
 show_help () {
