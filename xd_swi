@@ -168,10 +168,11 @@ xd_test () {
 }
 
 xd_swi () {
+  local __dir __file action
   # Set magic variables for current file & dir
   __dir="$(cd "$(dirname "${BASH_SOURCE[0]:-}")" && pwd)"
   __file="${__dir}/$(basename "${BASH_SOURCE[0]:-}")"
-  readonly __dir __file action
+  readonly __dir __file
   
   action="${1:-}"
   if [ -n "${action}" ]; then
@@ -210,12 +211,12 @@ xd_swi () {
     exit 0
   fi
   if [ 'on' == "${action}" ]; then
-    action=1
+    status=1
   elif [ 'off' == "${action}" ]; then
-    action=0
+    status=0
   fi
 
-  switch_status ${action}
+  switch_status ${status}
   show_status
 }
 
