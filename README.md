@@ -10,6 +10,11 @@ Or get downloader help
 $ curl -Ls https://raw.github.com/rikby/xdebug-switcher/master/download | bash -s -- --help
 ```
 
+## Supported OS
+It's was tested in 
+- Windows GitBash console tool 
+- and in CentoOS.
+
 ## Help output
 ```
 PHP XDebug extension switcher.
