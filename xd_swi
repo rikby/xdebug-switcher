@@ -21,14 +21,13 @@
 #
 # Appreciates to owner/s for advices in http://bash3boilerplate.sh
 # http://kvz.io/blog/2013/11/21/bash-best-practices/
-#
-# 2016-11-24
 
 set -o errexit
 set -o pipefail
 set -o nounset
 #set -o xtrace
 
+__version='v0.2.1'
 download_url='https://raw.github.com/rikby/xdebug-switcher/master/download'
 
 show_help () {
@@ -172,8 +171,7 @@ xd_swi () {
   # Set magic variables for current file & dir
   __dir="$(cd "$(dirname "${BASH_SOURCE[0]:-}")" && pwd)"
   __file="${__dir}/$(basename "${BASH_SOURCE[0]:-}")"
-  __version='v0.2.0'
-  readonly __dir __file __version action
+  readonly __dir __file action
   
   action="${1:-}"
   if [ -n "${action}" ]; then
