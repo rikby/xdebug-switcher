@@ -143,11 +143,12 @@ self_update () {
       exit 1
   fi
 
-  if ! curl -Ls ${download_url} | bash -s -- --file ${__file} > /dev/null 2>&1; then
+  if ! curl -Ls ${download_url} | bash -s -- --file ${__file} $@ > /dev/null 2>&1; then
     echo 'error: Cannot complete update.'
     exit 1
   fi
   
+  ${__file} -v
   echo 'Update completed.'
 }
 
@@ -172,9 +173,12 @@ xd_swi () {
   __dir="$(cd "$(dirname "${BASH_SOURCE[0]:-}")" && pwd)"
   __file="${__dir}/$(basename "${BASH_SOURCE[0]:-}")"
   __version='v0.2.0'
-  readonly __dir __file __version
+  readonly __dir __file __version action
   
   action="${1:-}"
+  if [ -n "${action}" ]; then
+    shift
+  fi
   check_php
 
   if [ '-h' == "${action}" ]; then
@@ -204,7 +208,7 @@ xd_swi () {
     exit 0
   fi
   if [[ "${action}" =~ self-?update ]]; then
-    self_update
+    self_update $@
     exit 0
   fi
   if [ 'on' == "${action}" ]; then
