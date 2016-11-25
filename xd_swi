@@ -171,7 +171,7 @@ xd_swi () {
   # Set magic variables for current file & dir
   __dir="$(cd "$(dirname "${BASH_SOURCE[0]:-}")" && pwd)"
   __file="${__dir}/$(basename "${BASH_SOURCE[0]:-}")"
-  __version='v0.1.0 (2016-11-24)'
+  __version='v0.2.0'
   readonly __dir __file __version
   
   action="${1:-}"
