@@ -216,7 +216,7 @@ xd_swi () {
     status=0
   fi
 
-  switch_status ${status}
+  switch_status ${status:-}
   show_status
 }
 
