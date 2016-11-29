@@ -224,8 +224,9 @@ xd_test () {
 }
 
 set_restart_command () {
-  if [ -n "${1}" ]; then
-    sed -i -re 's@.*(\# ''here restart server)@    '${@}' # ''here restart server@' ${__file}
+  if [ -n "${1:-}" ]; then
+    replace="$@"
+    sed -i -re 's%.*\# ''here restart server%    '"${replace}"' # ''here restart server%' ${__file}
   else
     echo 'error: Please define a command: xd_swi restart-command -- your command'
     exit 3
