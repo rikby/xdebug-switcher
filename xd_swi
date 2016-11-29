@@ -73,8 +73,8 @@ Commands:
   Run self update
     $ xd_swi self-update
     
-Define custom command to restart a service, e.g. php-fpm.
-  $ sed -i -re 's|.*\# here restart server|    supervisorctl restart php-fpm # here restart server|' /usr/local/bin/xd_swi
+  Define custom command to restart a service after changed status, e.g. php-fpm
+    $ xd_swi restart-command -- supervisorctl restart php-fpm
 EOF
 }
 
@@ -224,7 +224,12 @@ xd_test () {
 }
 
 set_restart_command () {
-  sed -i -re 's@.*(\# here ''restart server)@    '${@}'$1@' /usr/local/bin/xd_swi
+  if [ -n "${1}" ]; then
+    sed -i -re 's@.*(\# ''here restart server)@    '${@}' # ''here restart server@' ${__file}
+  else
+    echo 'error: Please define a command: xd_swi restart-command -- your command'
+    exit 3
+  fi
 }
 
 # Stub for restarting server
@@ -243,7 +248,7 @@ xd_swi () {
   readonly __dir __file
   
   read_params ${@}
-  eval set -- $(${rest_params})
+  eval set -- ${rest_params}
 
   check_php
 
