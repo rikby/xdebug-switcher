@@ -215,13 +215,15 @@ xd_swi () {
     self_update $@
     exit 0
   fi
+  
+  status=''
   if [ 'on' == "${action}" ]; then
     status=1
   elif [ 'off' == "${action}" ]; then
     status=0
   fi
 
-  switch_status ${status:-}
+  switch_status ${status}
   show_status
   xd_swi_restart_server
 }
