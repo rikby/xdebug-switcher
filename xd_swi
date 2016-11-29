@@ -228,7 +228,7 @@ xd_swi () {
   __file="${__dir}/$(basename "${BASH_SOURCE[0]:-}")"
   readonly __dir __file
   
-  read_params
+  read_params ${@}
   
   check_php
 
