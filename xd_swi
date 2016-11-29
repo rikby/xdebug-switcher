@@ -169,6 +169,7 @@ xd_test () {
 
 # Stub for restarting server
 xd_swi_restart_server () {
+  printf '' # function stub
   # here restart server
 }
 
