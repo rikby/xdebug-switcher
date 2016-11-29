@@ -16,8 +16,10 @@
 #      - show status as integer
 #    xd_swi test
 #      - test all commands
-#    xd_swi -h
+#    xd_swi -h|--help
 #      - show help
+#    xd_swi -v|--version
+#      - show version
 #
 # Appreciates to owner/s for advices in http://bash3boilerplate.sh
 # http://kvz.io/blog/2013/11/21/bash-best-practices/
@@ -45,6 +47,10 @@ Commands:
     $ xd_swi 1|on
     XDebug is enabled
 
+  Switch status without restarting service.
+    $ xd_swi 1|on
+    XDebug is enabled
+
   Push to OFF
     $ xd_swi 0|off
     XDebug is disabled
@@ -57,14 +63,18 @@ Commands:
     $ xd_swi status
     XDebug enabled
 
-  Get version/date
-    $ xd_swi -v
+  Get version
+    $ xd_swi -v|--version
+    v0.2.0
 
   Get path to xdebug configuration INI file
     $ xd_swi file
 
   Run self update
     $ xd_swi self-update
+    
+Define custom command to restart a service, e.g. php-fpm.
+  $ sed -i -re 's|.*\# here restart server|    supervisorctl restart php-fpm # here restart server|' /usr/local/bin/xd_swi
 EOF
 }
 
@@ -111,7 +121,7 @@ read_params () {
     esac
   done
 
-  tar_options=$@
+  rest_params=$@
 }
 
 check_php () {
@@ -213,8 +223,12 @@ xd_test () {
   [ "${result}" == '0' ] && echo 'FAILED' && exit 5
 }
 
+set_restart_command () {
+  sed -i -re 's@.*(\# here ''restart server)@    '${@}'$1@' /usr/local/bin/xd_swi
+}
+
 # Stub for restarting server
-xd_swi_restart_server () {
+xd_swi_restart_service () {
   if [ '1' == "${1}" ]; then
     printf '' # function stub
     # here restart server
@@ -229,7 +243,8 @@ xd_swi () {
   readonly __dir __file
   
   read_params ${@}
-  
+  eval set -- $(${rest_params})
+
   check_php
 
   if [ 'test' == "${action}" ]; then
@@ -246,10 +261,17 @@ xd_swi () {
     show_status
     exit 0
   fi
+  
   if [ 'stat' == "${action}" ]; then
     xdebug_on?
     exit 0
   fi
+  
+  if [ 'restart-command' == "${action}" ]; then
+    set_restart_command "$@"
+    exit 0
+  fi
+  
   if [[ "${action}" =~ self-?update ]]; then
     self_update $@
     exit 0
@@ -264,7 +286,7 @@ xd_swi () {
 
   switch_status ${status}
   show_status
-  xd_swi_restart_server ${restart_on}
+  xd_swi_restart_service ${restart_on}
 }
 
 # Script running with pipeline
