@@ -27,7 +27,7 @@ set -o pipefail
 set -o nounset
 #set -o xtrace
 
-__version='v0.2.3'
+__version='v0.3.0'
 download_url='https://raw.github.com/rikby/xdebug-switcher/master/download'
 
 show_help () {
@@ -138,7 +138,7 @@ switch_status () {
 
 self_update () {
   if [ -e ${__file} ] && [ ! -w ${__file} ]; then
-      echo 'error: No permissions to make update.'
+      echo 'error: No permissions to perform update.'
       exit 1
   fi
 
