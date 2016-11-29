@@ -167,6 +167,11 @@ xd_test () {
   [ "${result}" == '0' ] && echo 'FAILED' && exit 5
 }
 
+# Stub for restarting server
+xd_swi_restart_server () {
+  # here restart server
+}
+
 xd_swi () {
   local __dir __file action
   # Set magic variables for current file & dir
@@ -218,6 +223,7 @@ xd_swi () {
 
   switch_status ${status:-}
   show_status
+  xd_swi_restart_server
 }
 
 # Script running with pipeline
