@@ -27,7 +27,7 @@ set -o pipefail
 set -o nounset
 #set -o xtrace
 
-__version='v0.3.0'
+__version='v0.3.1'
 download_url='https://raw.github.com/rikby/xdebug-switcher/master/download'
 
 show_help () {
@@ -66,6 +66,52 @@ Commands:
   Run self update
     $ xd_swi self-update
 EOF
+}
+
+read_params () {
+  # Process args
+  
+  action=''
+  if [ -n "${1:-}" ] && [ "${1::1}" != '-' ]; then
+    action="$1"
+    shift
+  fi
+
+  # Process options
+  # validate and redefine options
+  OPTS=`getopt -o vhn -l version,help,no-restart -- "$@"`
+  eval set -- "${OPTS}"
+  restart_on=1
+  while true; do
+    case "${1}" in
+      -v|--version)
+        echo ${__version}
+        exit 0
+        ;;
+      -n|--no-restart)
+        restart_on=0
+        shift
+        ;;
+      -h|--help)
+        show_help
+        exit 0
+        ;;
+      -\?)
+        show_help
+        exit 1
+        ;;
+      --)
+        shift
+        break
+        ;;
+      *)
+        echo "${0}: unparseable option ${1}."
+        exit 3
+        ;;
+    esac
+  done
+
+  tar_options=$@
 }
 
 check_php () {
@@ -169,31 +215,23 @@ xd_test () {
 
 # Stub for restarting server
 xd_swi_restart_server () {
-  printf '' # function stub
-  # here restart server
+  if [ '1' == "${1}" ]; then
+    printf '' # function stub
+    # here restart server
+  fi
 }
 
 xd_swi () {
-  local __dir __file action
+  local __dir __file action restart_on
   # Set magic variables for current file & dir
   __dir="$(cd "$(dirname "${BASH_SOURCE[0]:-}")" && pwd)"
   __file="${__dir}/$(basename "${BASH_SOURCE[0]:-}")"
   readonly __dir __file
   
-  action="${1:-}"
-  if [ -n "${action}" ]; then
-    shift
-  fi
+  read_params
+  
   check_php
 
-  if [ '-h' == "${action}" ]; then
-    show_help
-    exit 0
-  fi
-  if [ '-v' == "${action}" ]; then
-    echo ${__version}
-    exit 0
-  fi
   if [ 'test' == "${action}" ]; then
     xd_test
     exit 0
@@ -226,7 +264,7 @@ xd_swi () {
 
   switch_status ${status}
   show_status
-  xd_swi_restart_server
+  xd_swi_restart_server ${restart_on}
 }
 
 # Script running with pipeline
