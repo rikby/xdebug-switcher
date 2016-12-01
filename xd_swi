@@ -3,23 +3,10 @@
 #    curl -Ls https://raw.github.com/rikby/xdebug-switcher/master/download | bash
 # Show help
 #    curl -Ls https://raw.github.com/rikby/xdebug-switcher/master/download | bash -s -- --help
-# And run:
-#    xd_swi
-#      - switch status
-#    xd_swi 0|off
-#      - disable xdebug
-#    xd_swi 1|on
-#      - enable xdebug
-#    xd_swi status
-#      - show status
-#    xd_swi stat
-#      - show status as integer
-#    xd_swi test
-#      - test all commands
-#    xd_swi -h|--help
-#      - show help
-#    xd_swi -v|--version
-#      - show version
+# And run: xd_swi
+#
+# Show help:
+#    xd_swi -h
 #
 # Appreciates to owner/s for advices in http://bash3boilerplate.sh
 # http://kvz.io/blog/2013/11/21/bash-best-practices/
@@ -75,6 +62,9 @@ Commands:
     
   Define custom command to restart a service after changed status, e.g. php-fpm
     $ xd_swi restart-command -- supervisorctl restart php-fpm
+    
+  Run xd_swi without restart command
+    $ xd_swi -n|--no-restart
 EOF
 }
 
