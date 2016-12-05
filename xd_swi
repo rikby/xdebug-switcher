@@ -179,7 +179,17 @@ switch_status () {
   elif sudo -v > /dev/null 2>&1; then
     sud='sudo'
   fi
-  ${sud} sed -i.bak -r "s|${find}|${replace}|g" ${file_ini}
+  $(get_sudo) sed -i.bak -r "s|${find}|${replace}|g" ${file_ini}
+}
+
+get_sudo () {
+  sud=''
+  if [[ "$(uname -a)" =~ 'Msys' ]] || [[ "${EUID}" == '0' ]]; then
+    sud=''
+  elif sudo -v > /dev/null 2>&1; then
+    sud='sudo'
+  fi
+  echo ${sud}
 }
 
 self_update () {
@@ -229,11 +239,10 @@ set_restart_command () {
 xd_swi_restart_service () {
   if [ '1' == "${1}" ]; then
     if [ -f /usr/local/lib/xd_swi-restart-command ]; then
-      bash /usr/local/lib/xd_swi-restart-command
+      $(get_sudo) bash /usr/local/lib/xd_swi-restart-command
     fi
   fi
 }
-
 
 xd_swi () {
   local __dir __file action restart_on
