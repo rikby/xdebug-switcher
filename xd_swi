@@ -61,8 +61,9 @@ Commands:
     $ xd_swi self-update
     
   Define custom command to restart a service after changed status, e.g. php-fpm
+  (please don't use sudo because it will be used automatically if it's installed)
     $ xd_swi restart-command -- supervisorctl restart php-fpm
-    
+
   Run xd_swi without restart command
     $ xd_swi -n|--no-restart
 EOF
@@ -70,7 +71,6 @@ EOF
 
 read_params () {
   # Process args
-  
   action=''
   if [ -n "${1:-}" ] && [ "${1::1}" != '-' ]; then
     action="$1"
@@ -173,16 +173,12 @@ switch_status () {
     find=$( echo ${match_string} | tr -d ';' )
     replace=";${match_string}"
   fi
-  sud=''
-  if [[ "$(uname -a)" =~ 'Msys' ]] || [[ "${EUID}" == '0' ]]; then
-    sud=''
-  elif sudo -v > /dev/null 2>&1; then
-    sud='sudo'
-  fi
+
   $(get_sudo) sed -i.bak -r "s|${find}|${replace}|g" ${file_ini}
 }
 
 get_sudo () {
+  local sud
   sud=''
   if [[ "$(uname -a)" =~ 'Msys' ]] || [[ "${EUID}" == '0' ]]; then
     sud=''
