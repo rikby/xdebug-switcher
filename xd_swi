@@ -16,7 +16,7 @@ set -o pipefail
 set -o nounset
 #set -o xtrace
 
-__version='v0.5.0'
+__version='v0.6.0'
 download_url='https://raw.github.com/rikby/xdebug-switcher/master/download'
 
 show_help () {
@@ -173,7 +173,7 @@ switch_status () {
     find=$( echo ${match_string} | tr -d ';' )
     replace=";${match_string}"
   fi
-
+echo $(get_sudo)
   $(get_sudo) sed -i.bak -r "s|${find}|${replace}|g" ${file_ini}
 }
 
