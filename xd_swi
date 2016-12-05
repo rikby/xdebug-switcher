@@ -16,7 +16,7 @@ set -o pipefail
 set -o nounset
 #set -o xtrace
 
-__version='v0.4.0'
+__version='v0.5.0'
 download_url='https://raw.github.com/rikby/xdebug-switcher/master/download'
 
 show_help () {
@@ -214,22 +214,26 @@ xd_test () {
 }
 
 set_restart_command () {
-  if [ -n "${1}" ]; then
-    replace="$@"
-    sed -i -re 's%.*(\# ''here restart server)%    '"${replace}"' # ''here restart server%' ${__file}
+  if [ -n "${1:-}" ]; then
+    echo '#!/usr/bin/env bash' > /usr/local/lib/xd_swi-restart-command
+    echo '# Reztart command after switching status by command xd_swi.' >> /usr/local/lib/xd_swi-restart-command
+    echo "$@" >> /usr/local/lib/xd_swi-restart-command
+  elif [ -f /usr/local/lib/xd_swi-restart-command ]; then
+      cat /usr/local/lib/xd_swi-restart-command
   else
-    echo 'error: Please define a command: xd_swi restart-command -- your command'
-    exit 3
+    echo 'no command'
+    exit 1
   fi
 }
 
-# Stub for restarting server
 xd_swi_restart_service () {
   if [ '1' == "${1}" ]; then
-    printf '' # function stub
-    # here restart server
+    if [ -f /usr/local/lib/xd_swi-restart-command ]; then
+      bash /usr/local/lib/xd_swi-restart-command
+    fi
   fi
 }
+
 
 xd_swi () {
   local __dir __file action restart_on
