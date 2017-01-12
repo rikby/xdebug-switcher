@@ -35,7 +35,7 @@ $ xd_swi on
 XDebug is enabled
 ```
 
-Please `xd_swi --help` to get more information about options.
+Please use `xd_swi --help` to get more information about options.
 
 ### Help output
 ```
