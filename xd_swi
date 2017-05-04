@@ -118,7 +118,7 @@ check_php () {
   # Check PHP
   php --version > /dev/null 2>&1
   if [  0 != $? ]; then
-      echo -e '\033[0;31m''PHP not found.''\e[0m'
+      echo -e '\033[0;31m''PHP not found.''\033[0m'
       exit 1
   fi
 }
@@ -148,8 +148,8 @@ xdebug_on? () {
 show_status () {
   # Show status
   [ '1' == "$(xdebug_on?)" ] \
-      && echo -e 'XDebug is ''\033[0;32m''enabled''\e[0m' \
-      || echo -e 'XDebug is ''\033[0;31m''disabled''\e[0m'
+      && echo -e 'XDebug is ''\033[0;32m''enabled''\033[0m' \
+      || echo -e 'XDebug is ''\033[0;31m''disabled''\033[0m'
 }
 
 switch_status () {
@@ -174,7 +174,12 @@ switch_status () {
     replace=";${match_string}"
   fi
 
-  $(get_sudo) sed -i.bak -r "s|${find}|${replace}|g" ${file_ini}
+  arg="-r"
+  if [ "$(uname)" == "Darwin" ] || [ "$(expr substr $(uname -s) 1 5)" == "MINGW" ] ; then
+    arg="-E"
+  fi
+
+  $(get_sudo) sed -i.bak ${arg} "s|${find}|${replace}|g" ${file_ini}
 }
 
 get_sudo () {
