@@ -86,6 +86,9 @@ Commands:
     $ xd_swi -n|--no-restart
 ```
 
+### Custom PHP binary path
+You may declare your custom PHP binary path by setting environment variable `XD_SWI_PHP_BIN`.
+
 ## Run tests
 Here an example of successful tests.
 ``` Shell
