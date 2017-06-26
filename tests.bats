@@ -65,3 +65,37 @@ echo ';zend_extension = /usr/local/lib/php/extensions/no-debug-non-zts-20160303/
   [ "${status}" -eq 0 ]
   [ "${output}" == ${xdebug_file} ]
 }
+
+@test "Trigger restart command." {
+  export BASH_NO_COLOR=1
+  rm -f /tmp/test-command.txt \
+        /usr/local/lib/xd_swi-restart-command
+  run xd_swi 0
+  echo 'echo 1 > /tmp/test-command.txt' > /tmp/test-run.sh
+
+  run xd_swi restart-command -- bash /tmp/test-run.sh /tmp/test-command.txt
+  run xd_swi
+
+  [ "${status}" -eq 0 ]
+  [ 'XDebug is enabled' == "${output:-}" ]
+  [ -f /usr/local/lib/xd_swi-restart-command ]
+  [ "$(cat /tmp/test-command.txt)" == '1' ]
+}
+
+@test "Omitting restart command." {
+  export BASH_NO_COLOR=1
+
+  rm -f /tmp/test-command.txt \
+        /usr/local/lib/xd_swi-restart-command
+  run xd_swi 0
+  echo 'echo 1 > /tmp/test-command.txt' > /tmp/test-run.sh
+
+  run xd_swi restart-command -- bash /tmp/test-run.sh /tmp/test-command.txt
+
+  # it must not trigger "restart-command"
+  run xd_swi --no-restart
+
+  [ "${status}" -eq 0 ]
+  [ 'XDebug is enabled' == "${output:-}" ]
+  [ ! -f /tmp/test-command.txt ]
+}
