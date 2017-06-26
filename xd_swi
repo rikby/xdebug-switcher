@@ -145,9 +145,9 @@ check_php () {
 find_ini_file () {
   local file_ini
   # Find Xdebug INI file
-  file_ini=$(php -i | grep -Eo '(([A-Z]\:|/)[^ ]+)xdebug.ini')
+  file_ini=$(php -i | grep -Eo '(([A-Z]\:|/)[^ ]+)xdebug.ini' | head -n1)
   if [ -z ${file_ini} ]; then
-    file_ini=$(php -i | grep -Eo '(([A-Z]\:|/)[^ ]+)php.ini')
+    file_ini=$(php -i | grep -Eo '(([A-Z]\:|/)[^ ]+)php.ini' | head -n1)
   fi
   if [ -z ${file_ini} ]; then
     check_error 5 'There is no PHP ini file to edit.'
