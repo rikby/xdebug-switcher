@@ -85,3 +85,17 @@ Commands:
   Run xd_swi without restart command
     $ xd_swi -n|--no-restart
 ```
+
+## Run tests
+Here an example of successful tests.
+``` Shell
+0 ✓ vagrant 19:40:33 /srv/html/xdebug-switcher
+$ docker-compose up
+[...]
+Starting xd-swi
+Attaching to xd-swi
+xd-swi | 1..9
+xd-swi | ok 1 Check short status.
+[...]
+xd-swi exited with code 0
+```
