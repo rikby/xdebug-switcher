@@ -301,9 +301,9 @@ xd_swi () {
   fi
 
   status=''
-  if [ 'on' == "${action}" ]; then
+  if [ 'on' == "${action}" ] || [ '1' == "${action}" ]; then
     status=1
-  elif [ 'off' == "${action}" ]; then
+  elif [ 'off' == "${action}" ] || [ '0' == "${action}" ]; then
     status=0
   fi
 
