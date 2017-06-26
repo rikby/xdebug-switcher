@@ -11,9 +11,11 @@ ERR_CONNECTION=6 # failed test for connection
 status=0
 output=''
 
+xdebug_file=/usr/local/etc/php/conf.d/100-xdebug.ini
+
 # drop status
 echo ';zend_extension = /usr/local/lib/php/extensions/no-debug-non-zts-20160303/xdebug.so' \
-      > /usr/local/etc/php/conf.d/100-xdebug.ini
+      > ${xdebug_file}
 
 @test "Check short status." {
   export BASH_NO_COLOR=1
@@ -29,7 +31,7 @@ echo ';zend_extension = /usr/local/lib/php/extensions/no-debug-non-zts-20160303/
   [ "${output}" == 'XDebug is disabled' ]
 }
 
-@test "Disable with '1'." {
+@test "Enable with '1'." {
   export BASH_NO_COLOR=1
   run xd_swi 1
   [ "${status}" -eq 0 ]
@@ -43,7 +45,7 @@ echo ';zend_extension = /usr/local/lib/php/extensions/no-debug-non-zts-20160303/
   [ "${output}" == 'XDebug is disabled' ]
 }
 
-@test "Disable with 'on'." {
+@test "Enable with 'on'." {
   export BASH_NO_COLOR=1
   run xd_swi on
   [ "${status}" -eq 0 ]
@@ -55,4 +57,11 @@ echo ';zend_extension = /usr/local/lib/php/extensions/no-debug-non-zts-20160303/
   run xd_swi off
   [ "${status}" -eq 0 ]
   [ "${output}" == 'XDebug is disabled' ]
+}
+
+@test "Read path to Xdebug INI file." {
+  export BASH_NO_COLOR=1
+  run xd_swi file
+  [ "${status}" -eq 0 ]
+  [ "${output}" == ${xdebug_file} ]
 }
