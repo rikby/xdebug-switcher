@@ -19,6 +19,25 @@ set -o nounset
 __version='v0.6.0'
 download_url='https://raw.github.com/rikby/xdebug-switcher/master/download'
 
+if [ '1' == "${BASH_NO_COLOR:-}" ]; then
+  t_red=''
+  t_green=''
+  t_yellow=''
+  t_reset=''
+else
+  t_red='\033[0;31m'
+  t_green='\033[0;32m'
+  t_yellow='\033[0;33m'
+  t_reset='\033[0m'
+fi
+
+check_error () {
+  if [ $1 != 0 ]; then
+    echo -e "${t_red}error:${t_reset} "$2 > /dev/stderr
+    exit $1
+  fi
+}
+
 show_help () {
   cat << EOF
 PHP XDebug extension switcher.
@@ -59,7 +78,7 @@ Commands:
 
   Run self update
     $ xd_swi self-update
-    
+
   Define custom command to restart a service after changed status, e.g. php-fpm
   (please don't use sudo because it will be used automatically if it's installed)
     $ xd_swi restart-command -- supervisorctl restart php-fpm
@@ -118,7 +137,7 @@ check_php () {
   # Check PHP
   php --version > /dev/null 2>&1
   if [  0 != $? ]; then
-      echo -e '\033[0;31m''PHP not found.''\033[0m'
+      check_error 4 'PHP not found.'
       exit 1
   fi
 }
@@ -131,12 +150,10 @@ find_ini_file () {
     file_ini=$(php -i | grep -Eo '(([A-Z]\:|/)[^ ]+)php.ini')
   fi
   if [ -z ${file_ini} ]; then
-    echo 'There is no PHP ini file to edit.'
-    exit 1
+    check_error 5 'There is no PHP ini file to edit.'
   fi
   if [ ! -f ${file_ini} ]; then
-    echo "There is no ini file '${file_ini}' to edit."
-    exit 1
+    check_error 5 "There is no ini file '${file_ini}' to edit."
   fi
   echo ${file_ini}
 }
@@ -148,8 +165,8 @@ xdebug_on? () {
 show_status () {
   # Show status
   [ '1' == "$(xdebug_on?)" ] \
-      && echo -e 'XDebug is ''\033[0;32m''enabled''\033[0m' \
-      || echo -e 'XDebug is ''\033[0;31m''disabled''\033[0m'
+      && echo -e 'XDebug is '${t_green}'enabled'${t_reset} \
+      || echo -e 'XDebug is '${t_red}'disabled'${t_reset}
 }
 
 switch_status () {
@@ -162,8 +179,7 @@ switch_status () {
   # Check Xdebug configuration declaration.
   match_string=$(cat ${file_ini} | grep -Eo ';*zend_extension\s*=.*xdebug')
   if [ -z "${match_string}" ]; then
-    echo "There is no declaration about xdebug PHP extension."
-    exit 1
+    check_error 5 "There is no declaration about xdebug PHP extension."
   fi
 
   if [ '0' == "$(xdebug_on?)" ] ; then
@@ -195,15 +211,13 @@ get_sudo () {
 
 self_update () {
   if [ -e ${__file} ] && [ ! -w ${__file} ]; then
-      echo 'error: No permissions to perform update.'
-      exit 1
+      check_error 6 'No permissions to perform update.'
   fi
 
   if ! curl -Ls ${download_url} | bash -s -- --file ${__file} $@ > /dev/null 2>&1; then
-    echo 'error: Cannot complete update.'
-    exit 1
+    check_error 6 'Cannot complete update.'
   fi
-  
+
   ${__file} -v
   echo 'Update completed.'
 }
@@ -232,8 +246,7 @@ set_restart_command () {
   elif [ -f /usr/local/lib/xd_swi-restart-command ]; then
       cat /usr/local/lib/xd_swi-restart-command
   else
-    echo 'no command'
-    exit 1
+    check_error 3 'No command provided.'
   fi
 }
 
@@ -251,7 +264,7 @@ xd_swi () {
   __dir="$(cd "$(dirname "${BASH_SOURCE[0]:-}")" && pwd)"
   __file="${__dir}/$(basename "${BASH_SOURCE[0]:-}")"
   readonly __dir __file
-  
+
   read_params ${@}
   eval set -- ${rest_params}
 
@@ -259,34 +272,34 @@ xd_swi () {
 
   if [ 'test' == "${action}" ]; then
     xd_test
-    exit 0
+    return
   fi
-  
+
   if [ 'file' == "${action}" ]; then
     find_ini_file
-    exit 0
+    return
   fi
 
   if [ 'status' == "${action}" ]; then
     show_status
-    exit 0
+    return
   fi
-  
+
   if [ 'stat' == "${action}" ]; then
     xdebug_on?
-    exit 0
+    return
   fi
-  
+
   if [ 'restart-command' == "${action}" ]; then
     set_restart_command "$@"
-    exit 0
+    return
   fi
-  
+
   if [[ "${action}" =~ self-?update ]]; then
     self_update $@
-    exit 0
+    return
   fi
-  
+
   status=''
   if [ 'on' == "${action}" ]; then
     status=1
