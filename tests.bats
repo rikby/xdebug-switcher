@@ -11,11 +11,11 @@ ERR_CONNECTION=6 # failed test for connection
 status=0
 output=''
 
-xdebug_file=/usr/local/etc/php/conf.d/100-xdebug.ini
+xdebug_ini_file=${XDEBUG_INI}
 
-# drop status
-echo ';zend_extension = /usr/local/lib/php/extensions/no-debug-non-zts-20160303/xdebug.so' \
-      > ${xdebug_file}
+# reset status to "OFF"
+echo ';zend_extension = '${XDEBUG_EXT} \
+      > ${xdebug_ini_file}
 
 @test "Check short status." {
   export BASH_NO_COLOR=1
@@ -63,7 +63,7 @@ echo ';zend_extension = /usr/local/lib/php/extensions/no-debug-non-zts-20160303/
   export BASH_NO_COLOR=1
   run xd_swi file
   [ "${status}" -eq 0 ]
-  [ "${output}" == ${xdebug_file} ]
+  [ "${output}" == ${xdebug_ini_file} ]
 }
 
 @test "Trigger restart command." {
