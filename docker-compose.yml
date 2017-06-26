@@ -4,5 +4,6 @@ services:
     container_name: xd-swi
     hostname: xd-swi
     build: .
-    volumes:
-    - '.:/code'
+#    volumes:
+#    - '.:/code'
+#    command: sleep infinity
