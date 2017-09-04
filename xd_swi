@@ -18,7 +18,7 @@ set -o pipefail
 set -o nounset
 #set -o xtrace
 
-__version='v0.6.3'
+__version='v0.6.4'
 download_url='https://raw.github.com/rikby/xdebug-switcher/master/download'
 
 if [ '1' == "${BASH_NO_COLOR:-}" ]; then
