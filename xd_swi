@@ -10,13 +10,15 @@
 #
 # Appreciates to owner/s for advices in http://bash3boilerplate.sh
 # http://kvz.io/blog/2013/11/21/bash-best-practices/
+#
+# 2017-09-04
 
 set -o errexit
 set -o pipefail
 set -o nounset
 #set -o xtrace
 
-__version='v0.6.2'
+__version='v0.6.3'
 download_url='https://raw.github.com/rikby/xdebug-switcher/master/download'
 
 if [ '1' == "${BASH_NO_COLOR:-}" ]; then
@@ -177,7 +179,7 @@ switch_status () {
   file_ini=$(find_ini_file)
 
   # Check Xdebug configuration declaration.
-  match_string=$(cat ${file_ini} | grep -Eo ';*zend_extension\s*=.*xdebug')
+  match_string=$(cat ${file_ini} | grep -Eo ';*zend_extension\s*=.*xdebug' || true)
   if [ -z "${match_string}" ]; then
     check_error 5 "There is no declaration about xdebug PHP extension."
   fi
