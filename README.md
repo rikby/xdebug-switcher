@@ -48,23 +48,19 @@ Commands:
   Show this help
     $ xd_swi -h
 
-  Push to ON
+  Disable Xdebug
     $ xd_swi 1|on
     XDebug is enabled
 
-  Switch status without restarting service.
-    $ xd_swi 1|on
-    XDebug is enabled
-
-  Push to OFF
+  Enable Xdebug
     $ xd_swi 0|off
     XDebug is disabled
 
-  Show status as integer 1 or 0
+  Show Xdebug status as integer 1 or 0
     $ xd_swi stat
     1
 
-  Show status as a message
+  Show status as a message (colored)
     $ xd_swi status
     XDebug enabled
 
@@ -82,7 +78,7 @@ Commands:
   (please don't use sudo because it will be used automatically if it's installed)
     $ xd_swi restart-command -- supervisorctl restart php-fpm
 
-  Run xd_swi without restart command
+  Run xd_swi to toggle Xdebug status without restarting service.
     $ xd_swi -n|--no-restart
 ```
 
