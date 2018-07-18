@@ -99,3 +99,23 @@ echo ';zend_extension = '${XDEBUG_EXT} \
   [ 'XDebug is enabled' == "${output:-}" ]
   [ ! -f /tmp/test-command.txt ]
 }
+
+@test "Set Xdebug for the service only." {
+  export BASH_NO_COLOR=1
+
+  rm -f /tmp/test-command.txt \
+        /usr/local/lib/xd_swi-restart-command
+  run xd_swi 0
+  echo 'echo 1 > /tmp/test-command.txt' > /tmp/test-run.sh
+
+  run xd_swi restart-command -- bash /tmp/test-run.sh
+
+  # it must trigger "restart-command" and enable Xdebug for the service
+  # and return it back to OFF for CLI
+  run xd_swi web
+
+  [ "${status}" -eq 0 ]
+  [[ "${output:-}" =~ 'XDebug is enabled' ]]
+  [[ "${output:-}" =~ 'XDebug is disabled' ]]
+  [ -f /tmp/test-command.txt ]
+}

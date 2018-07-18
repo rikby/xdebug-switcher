@@ -18,7 +18,7 @@ set -o pipefail
 set -o nounset
 #set -o xtrace
 
-__version='v0.6.4'
+__version='v0.7.0'
 download_url='https://raw.github.com/rikby/xdebug-switcher/master/download'
 
 if [ '1' == "${BASH_NO_COLOR:-}" ]; then
@@ -67,9 +67,19 @@ Commands:
     $ xd_swi status
     XDebug enabled
 
+  Keep status ON for the service only (restart service command should be defined).
+  It\'s some kind of an alias for the command:
+        $ xd_swi on && xd_swi -n off
+    $ xd_swi web
+    XDebug is enabled
+    php-fpm: stopped
+    php-fpm: started
+    XDebug is disabled
+
+
   Get version
     $ xd_swi -v|--version
-    v0.2.0
+    ${__version}
 
   Get path to XDebug configuration INI file
     $ xd_swi file
@@ -248,6 +258,10 @@ set_restart_command () {
   fi
 }
 
+has_restart_command? () {
+  [ -f /usr/local/lib/xd_swi-restart-command ] && [ -n "$(head /usr/local/lib/xd_swi-restart-command)" ]
+}
+
 xd_swi_restart_service () {
   if [ '1' == "${1}" ]; then
     if [ -f /usr/local/lib/xd_swi-restart-command ]; then
@@ -256,14 +270,28 @@ xd_swi_restart_service () {
   fi
 }
 
-xd_swi () {
-  local __dir __file action restart_on
-  # Set magic variables for current file & dir
-  __dir="$(cd "$(dirname "${BASH_SOURCE[0]:-}")" && pwd)"
-  __file="${__dir}/$(basename "${BASH_SOURCE[0]:-}")"
-  readonly __dir __file
+##
+# Keep xdebug only for an active service only
+#
+xdebug_web_on() {
+  if ! has_restart_command?; then
+      check_error 4 'There is no restart command for PHP service.'
+  fi
 
-  readonly php_bin=${XD_SWI_PHP_BIN:-php}
+  xd_swi on
+  xd_swi off -n
+}
+
+xd_swi () {
+  if ! [ -v __dir ]; then
+    local __dir __file action restart_on
+    # Set magic variables for current file & dir
+    __dir="$(cd "$(dirname "${BASH_SOURCE[0]:-}")" && pwd)"
+    __file="${__dir}/$(basename "${BASH_SOURCE[0]:-}")"
+    readonly __dir __file
+
+    readonly php_bin=${XD_SWI_PHP_BIN:-php}
+  fi
 
   read_params ${@}
   eval set -- ${rest_params}
@@ -297,6 +325,11 @@ xd_swi () {
 
   if [[ "${action}" =~ self-?update ]]; then
     self_update $@
+    return
+  fi
+
+  if [ 'web' == "${action}" ]; then
+    xdebug_web_on
     return
   fi
 
